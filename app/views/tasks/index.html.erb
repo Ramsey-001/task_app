@@ -24,9 +24,9 @@
 <div>
   <%= f.label :status_eq, "Status" %><br>
   <%= f.radio_button :status_eq, nil, checked: true %> Not specified<br>
-  <%= f.radio_button :status_eq, Task.statuses[:todo] %> Pending<br>
-  <%= f.radio_button :status_eq, Task.statuses[:doing] %> In Progress<br>
-  <%= f.radio_button :status_eq, Task.statuses[:done] %> Completed<br>
+  <%= f.radio_button :status_eq, Task.statuses[:todo] %> Todo<br>
+  <%= f.radio_button :status_eq, Task.statuses[:doing] %>Doing<br>
+  <%= f.radio_button :status_eq, Task.statuses[:done] %> Done<br>
 </div>
 
 
