@@ -2,13 +2,47 @@
 
 <h1>Tasks</h1>
 
+<!-- Search Form -->
+<%= search_form_for @q, url: tasks_path, method: :get do |f| %>
+  <!-- Keyword Search (title + description) -->
+  <div>
+    <%= f.label :title_or_description_cont, "Keyword Search" %>
+  <%= f.text_field :title_or_description_cont %>
+
+  </div>
+
+  <!-- Deadline Search -->
+  <div>
+    <%= f.label :deadline_gteq, "Deadline From" %>
+    <%= f.date_field :deadline_gteq %>
+
+    <%= f.label :deadline_lteq, "Deadline To" %>
+    <%= f.date_field :deadline_lteq %>
+  </div>
+
+<!-- Status Search -->
+<div>
+  <%= f.label :status_eq, "Status" %><br>
+  <%= f.radio_button :status_eq, nil, checked: true %> Not specified<br>
+  <%= f.radio_button :status_eq, Task.statuses[:todo] %> Pending<br>
+  <%= f.radio_button :status_eq, Task.statuses[:doing] %> In Progress<br>
+  <%= f.radio_button :status_eq, Task.statuses[:done] %> Completed<br>
+</div>
+
+
+  <%= f.submit "Search" %>
+<% end %>
+
+<br>
+
+<!--Task List -->
 <table>
   <thead>
     <tr>
       <th>Title</th>
       <th>Description</th>
       <th>Status</th>
-      <th>Deadline</th>
+      <th><%= sort_link(@q, :deadline, "Deadline") %></th>
       <th colspan="3"></th>
     </tr>
   </thead>

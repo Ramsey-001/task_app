@@ -2,9 +2,11 @@ class TasksController < ApplicationController
   before_action :set_task, only: [:show, :edit, :update, :destroy]
 
   # GET /tasks
-  def index
-    @tasks = Task.all
-  end
+def index
+  @q = Task.ransack(params[:q])
+  @tasks = @q.result(distinct: true)
+end
+
 
   # GET /tasks/1
   def show
