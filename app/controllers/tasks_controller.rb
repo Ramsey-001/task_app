@@ -1,60 +1,34 @@
 class TasksController < ApplicationController
-  before_action :set_task, only: [:show, :edit, :update, :destroy]
+  def index
+    @q = Task.ransack(params[:q])
+    @tasks = @q.result
 
-  # GET /tasks
-def index
-  @q = Task.ransack(params[:q])
-  @tasks = @q.result(distinct: true)
-end
+    # keyword search (title OR description)
+    if params[:keyword].present?
+      @tasks = @tasks.where("title LIKE :q OR description LIKE :q", q: "%#{params[:keyword]}%")
+    end
 
+    # start_date >=
+    if params[:start_date].present?
+      @tasks = @tasks.where("deadline >= ?", params[:start_date])
+    end
 
-  # GET /tasks/1
-  def show
-  end
+    # end_date <=
+    if params[:end_date].present?
+      @tasks = @tasks.where("deadline <= ?", params[:end_date])
+    end
 
-  # GET /tasks/new
-  def new
-    @task = Task.new
-  end
+    # status filter (skip if 'none')
+    if params[:status].present? && params[:status] != "none"
+      @tasks = @tasks.where(status: params[:status])
+    end
 
-  # GET /tasks/1/edit
-  def edit
-  end
-
-  # POST /tasks
-  def create
-    @task = Task.new(task_params)
-
-    if @task.save
-      redirect_to @task, notice: 'Task was successfully created.'
+    # sorting toggle
+    if params[:sort] == "deadline"
+      direction = params[:direction] == "asc" ? :asc : :desc
+      @tasks = @tasks.order(deadline: direction)
     else
-      render :new
+      @tasks = @tasks.order(created_at: :desc)
     end
   end
-
-  # PATCH/PUT /tasks/1
-  def update
-    if @task.update(task_params)
-      redirect_to @task, notice: 'Task was successfully updated.'
-    else
-      render :edit
-    end
-  end
-
-  # DELETE /tasks/1
-  def destroy
-    @task.destroy
-    redirect_to tasks_url, notice: 'Task was successfully destroyed.'
-  end
-
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_task
-      @task = Task.find(params[:id])
-    end
-
-    # Only allow a trusted parameter "white list" through.
-    def task_params
-      params.require(:task).permit(:title, :description, :status, :deadline)
-    end
 end
