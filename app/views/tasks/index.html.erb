@@ -1,67 +1,53 @@
 <p id="notice"><%= notice %></p>
+<h1>Task List</h1>
 
-<h1>Tasks</h1>
-
-<!-- Search Form -->
-<%= search_form_for @q, url: tasks_path, method: :get do |f| %>
-  <!-- Keyword Search (title + description) -->
+<%= form_with url: tasks_path, method: :get, local: true do %>
   <div>
-    <%= f.label :title_or_description_cont, "Keyword Search" %>
-  <%= f.text_field :title_or_description_cont %>
-
+    <%= text_field_tag :keyword, params[:keyword], placeholder: "Search title or description" %>
   </div>
 
-  <!-- Deadline Search -->
   <div>
-    <%= f.label :deadline_gteq, "Deadline From" %>
-    <%= f.date_field :deadline_gteq %>
+    <%= label_tag :start_date, "Start Date" %>
+    <%= date_field_tag :start_date, params[:start_date] %>
 
-    <%= f.label :deadline_lteq, "Deadline To" %>
-    <%= f.date_field :deadline_lteq %>
+    <%= label_tag :end_date, "End Date" %>
+    <%= date_field_tag :end_date, params[:end_date] %>
   </div>
 
-<!-- Status Search -->
-<div>
-  <%= f.label :status_eq, "Status" %><br>
-  <%= f.radio_button :status_eq, nil, checked: true %> Not specified<br>
-  <%= f.radio_button :status_eq, Task.statuses[:todo] %> Todo<br>
-  <%= f.radio_button :status_eq, Task.statuses[:doing] %>Doing<br>
-  <%= f.radio_button :status_eq, Task.statuses[:done] %> Done<br>
-</div>
+  <div>
+    <label>Status:</label>
+    <%= radio_button_tag :status, "none", params[:status].blank? || params[:status] == "none" %>
+    <%= label_tag :status_none, "指定なし" %>
 
+    <%= radio_button_tag :status, "todo", params[:status] == "todo" %>
+    <%= label_tag :status_todo, "todo" %>
 
-  <%= f.submit "Search" %>
+    <%= radio_button_tag :status, "doing", params[:status] == "doing" %>
+    <%= label_tag :status_doing, "doing" %>
+
+    <%= radio_button_tag :status, "done", params[:status] == "done" %>
+    <%= label_tag :status_done, "done" %>
+  </div>
+
+  <%= submit_tag "Search" %>
 <% end %>
 
-<br>
+<hr>
 
-<!--Task List -->
-<table>
-  <thead>
-    <tr>
-      <th>Title</th>
-      <th>Description</th>
-      <th>Status</th>
-      <th><%= sort_link(@q, :deadline, "Deadline") %></th>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
+<%= link_to "Sort by deadline", tasks_path(
+  keyword: params[:keyword],
+  start_date: params[:start_date],
+  end_date: params[:end_date],
+  status: params[:status],
+  sort: "deadline",
+  direction: params[:direction] == "asc" ? "desc" : "asc"
+) %>
 
-  <tbody>
-    <% @tasks.each do |task| %>
-      <tr>
-        <td><%= task.title %></td>
-        <td><%= task.description %></td>
-        <td><%= task.status %></td>
-        <td><%= task.deadline.strftime("%Y-%m-%d %H:%M") %></td>
-        <td><%= link_to 'Show', task %></td>
-        <td><%= link_to 'Edit', edit_task_path(task) %></td>
-        <td><%= link_to 'Destroy', task, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<br>
-
-<%= link_to 'New Task', new_task_path %>
+<ul>
+  <% @tasks.each do |task| %>
+    <li>
+      <strong><%= task.title %></strong> - <%= task.description %> - 
+      [<%= task.status %>] - Deadline: <%= task.deadline %>
+    </li>
+  <% end %>
+</ul>
